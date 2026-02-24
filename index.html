@@ -1,0 +1,1122 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JobHunt - Smart Job Tracker</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+
+<body>
+    <div class="app-shell" id="app">
+        <!-- TOP BAR -->
+        <header class="top-bar">
+            <div class="app-brand">
+                <i class="fas fa-briefcase"></i>
+                <span class="app-name">JobHunt</span>
+            </div>
+            <div class="top-stats">
+                <div class="stat-item">
+                    <span class="stat-value" id="appliedCount">0</span>
+                    <span class="stat-label">Applied</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-value" id="savedCount">0</span>
+                    <span class="stat-label">Saved</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-value" id="newJobsCount">0</span>
+                    <span class="stat-label">New Jobs</span>
+                </div>
+            </div>
+            <button class="menu-toggle" onclick="toggleMobileMenu()">
+                <i class="fas fa-bars"></i>
+            </button>
+        </header>
+
+        <!-- NAVIGATION -->
+        <nav class="nav-bar">
+            <div class="nav-container">
+                <a href="#" class="nav-link" data-route="landing">
+                    <i class="fas fa-home"></i> Home
+                </a>
+                <a href="#dashboard" class="nav-link" data-route="dashboard">
+                    <i class="fas fa-search"></i> Find Jobs
+                </a>
+                <a href="#applications" class="nav-link" data-route="applications">
+                    <i class="fas fa-paper-plane"></i> My Applications
+                </a>
+                <a href="#saved" class="nav-link" data-route="saved">
+                    <i class="fas fa-bookmark"></i> Saved
+                </a>
+                <a href="#digest" class="nav-link" data-route="digest">
+                    <i class="fas fa-newspaper"></i> Daily Digest
+                </a>
+                <a href="#settings" class="nav-link" data-route="settings">
+                    <i class="fas fa-cog"></i> Settings
+                </a>
+            </div>
+        </nav>
+
+        <!-- MOBILE NAVIGATION -->
+        <div class="mobile-nav" id="mobileNav">
+            <a href="#" class="nav-link" data-route="landing" onclick="toggleMobileMenu()">
+                <i class="fas fa-home"></i> Home
+            </a>
+            <a href="#dashboard" class="nav-link" data-route="dashboard" onclick="toggleMobileMenu()">
+                <i class="fas fa-search"></i> Find Jobs
+            </a>
+            <a href="#applications" class="nav-link" data-route="applications" onclick="toggleMobileMenu()">
+                <i class="fas fa-paper-plane"></i> My Applications
+            </a>
+            <a href="#saved" class="nav-link" data-route="saved" onclick="toggleMobileMenu()">
+                <i class="fas fa-bookmark"></i> Saved
+            </a>
+            <a href="#digest" class="nav-link" data-route="digest" onclick="toggleMobileMenu()">
+                <i class="fas fa-newspaper"></i> Daily Digest
+            </a>
+            <a href="#settings" class="nav-link" data-route="settings" onclick="toggleMobileMenu()">
+                <i class="fas fa-cog"></i> Settings
+            </a>
+        </div>
+
+        <!-- CONTEXT HEADER -->
+        <div class="context-header" id="contextHeader">
+            <h1 class="context-title" id="pageTitle">Find Your Dream Job</h1>
+            <p class="context-subtext" id="pageSubtext">Track applications and discover opportunities matched to your skills.</p>
+        </div>
+
+        <!-- MAIN CONTENT -->
+        <main class="main-content">
+            <div class="primary-workspace" id="primaryWorkspace">
+                <!-- Dynamic Content -->
+            </div>
+            <aside class="secondary-panel" id="secondaryPanel">
+                <div class="card stats-card" id="statsCard">
+                    <h3><i class="fas fa-chart-pie"></i> Your Progress</h3>
+                    <div class="progress-stats">
+                        <div class="progress-item">
+                            <div class="progress-label">
+                                <span>Applied</span>
+                                <span id="statApplied">0</span>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress-fill" id="barApplied" style="width: 0%"></div>
+                            </div>
+                        </div>
+                        <div class="progress-item">
+                            <div class="progress-label">
+                                <span>Interviews</span>
+                                <span id="statInterview">0</span>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress-fill progress-fill--interview" id="barInterview" style="width: 0%"></div>
+                            </div>
+                        </div>
+                        <div class="progress-item">
+                            <div class="progress-label">
+                                <span>Offers</span>
+                                <span id="statOffer">0</span>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress-fill progress-fill--offer" id="barOffer" style="width: 0%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card" id="recentActivityCard">
+                    <h3><i class="fas fa-clock"></i> Recent Activity</h3>
+                    <div id="recentActivity">
+                        <p class="empty-text">No recent activity</p>
+                    </div>
+                </div>
+            </aside>
+        </main>
+    </div>
+
+    <!-- Job Details Modal -->
+    <div id="jobModal" class="modal-overlay" onclick="if(event.target === this) closeModal()">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeModal()">&times;</button>
+            <div id="modalBody"></div>
+        </div>
+    </div>
+
+    <!-- Application Modal -->
+    <div id="applyModal" class="modal-overlay" onclick="if(event.target === this) closeApplyModal()">
+        <div class="modal-content modal-content--large">
+            <button class="modal-close" onclick="closeApplyModal()">&times;</button>
+            <div id="applyModalBody"></div>
+        </div>
+    </div>
+
+    <!-- Login/Register Modal -->
+    <div id="loginModal" class="modal-overlay" style="display: none;">
+        <div class="modal-content modal-content--large">
+            <button class="modal-close" onclick="closeLoginModal()">&times;</button>
+            <div class="auth-container">
+                <div class="auth-tabs">
+                    <button class="auth-tab active" onclick="showAuthTab('login')">Login</button>
+                    <button class="auth-tab" onclick="showAuthTab('register')">Register</button>
+                </div>
+                
+                <div id="loginForm" class="auth-form">
+                    <h2>Welcome Back</h2>
+                    <p>Login to access your job tracking dashboard</p>
+                    <form onsubmit="event.preventDefault(); handleLogin();">
+                        <div class="form-group">
+                            <label class="form-label">Email</label>
+                            <input type="email" id="loginEmail" class="form-input" placeholder="your@email.com" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Password</label>
+                            <input type="password" id="loginPassword" class="form-input" placeholder="••••••••" required>
+                        </div>
+                        <button type="submit" class="btn btn--primary btn--large" style="width: 100%;">
+                            <i class="fas fa-sign-in-alt"></i> Login
+                        </button>
+                    </form>
+                </div>
+                
+                <div id="registerForm" class="auth-form" style="display: none;">
+                    <h2>Create Account</h2>
+                    <p>Join JobHunt to track your job applications</p>
+                    <form onsubmit="event.preventDefault(); handleRegister();">
+                        <div class="form-group">
+                            <label class="form-label">Full Name</label>
+                            <input type="text" id="regName" class="form-input" placeholder="John Doe" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Email</label>
+                            <input type="email" id="regEmail" class="form-input" placeholder="your@email.com" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Password</label>
+                            <input type="password" id="regPassword" class="form-input" placeholder="Min 6 characters" minlength="6" required>
+                        </div>
+                        <button type="submit" class="btn btn--primary btn--large" style="width: 100%;">
+                            <i class="fas fa-user-plus"></i> Create Account
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification Toasts -->
+    <div id="toastContainer" class="toast-container"></div>
+
+    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+    <script src="app.js"></script>
+    <script>
+        // ==========================================
+        // JOBHUNT - SMART JOB TRACKER
+        // ==========================================
+        
+        // --- State Management ---
+        let preferences = JSON.parse(localStorage.getItem('jobHuntPreferences')) || null;
+        let savedJobs = JSON.parse(localStorage.getItem('jobHuntSaved')) || [];
+        let applications = JSON.parse(localStorage.getItem('jobHuntApplications')) || [];
+        let activities = JSON.parse(localStorage.getItem('jobHuntActivities')) || [];
+        let currentRoute = 'landing';
+        let showOnlyMatches = false;
+        let lastViewed = JSON.parse(localStorage.getItem('jobHuntLastViewed')) || 0;
+
+        const EXPERIENCE_LEVELS = ['Fresher', '0-1', '1-3', '3-5', '5+'];
+
+        // --- Routes Configuration ---
+        const routes = {
+            'landing': {
+                title: 'Find Your Dream Job',
+                subtext: 'Track applications and discover opportunities matched to your skills.',
+                render: () => renderLanding()
+            },
+            'dashboard': {
+                title: 'Find Jobs',
+                subtext: 'Discover opportunities matched to your profile.',
+                render: () => renderDashboard()
+            },
+            'applications': {
+                title: 'My Applications',
+                subtext: 'Track your job application progress.',
+                render: () => renderApplications()
+            },
+            'saved': {
+                title: 'Saved Jobs',
+                subtext: 'Your curated list of interesting opportunities.',
+                render: () => renderSaved()
+            },
+            'digest': {
+                title: 'Daily Digest',
+                subtext: 'Your personalized job recommendations.',
+                render: () => renderDigest()
+            },
+            'settings': {
+                title: 'Settings',
+                subtext: 'Customize your job search preferences.',
+                render: () => renderSettings()
+            }
+        };
+
+        // --- Core Functions ---
+        function navigate(route) {
+            window.location.hash = route === 'landing' ? '' : route;
+        }
+
+        function renderRoute() {
+            const hash = window.location.hash.replace('#', '') || 'landing';
+            const route = routes[hash] || routes['landing'];
+            currentRoute = hash;
+
+            document.getElementById('pageTitle').innerText = route.title;
+            document.getElementById('pageSubtext').innerText = route.subtext;
+            document.getElementById('primaryWorkspace').innerHTML = route.render();
+
+            // Update active nav
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.classList.toggle('active', link.getAttribute('data-route') === hash);
+            });
+
+            // Update sidebar visibility
+            const sidebar = document.getElementById('secondaryPanel');
+            if (sidebar) {
+                sidebar.style.display = hash === 'landing' ? 'none' : 'block';
+            }
+
+            // Update stats
+            updateStats();
+            updateSidebarStats();
+            renderRecentActivity();
+
+            window.scrollTo(0, 0);
+        }
+
+        function updateStats() {
+            const appliedCount = applications.filter(a => a.status !== 'Withdrawn').length;
+            document.getElementById('appliedCount').innerText = appliedCount;
+            document.getElementById('savedCount').innerText = savedJobs.length;
+            
+            // Count new jobs since last view
+            const newJobs = JOBS_DATA.filter(j => j.postedDaysAgo <= 1).length;
+            document.getElementById('newJobsCount').innerText = newJobs;
+        }
+
+        function updateSidebarStats() {
+            const applied = applications.filter(a => a.status !== 'Withdrawn').length;
+            const interview = applications.filter(a => ['Interview', 'Offer'].includes(a.status)).length;
+            const offer = applications.filter(a => a.status === 'Offer').length;
+            const total = Math.max(applied, 1);
+
+            document.getElementById('statApplied').innerText = applied;
+            document.getElementById('statInterview').innerText = interview;
+            document.getElementById('statOffer').innerText = offer;
+
+            document.getElementById('barApplied').style.width = `${(applied / total) * 100}%`;
+            document.getElementById('barInterview').style.width = `${(interview / total) * 100}%`;
+            document.getElementById('barOffer').style.width = `${(offer / total) * 100}%`;
+        }
+
+        function addActivity(action, details) {
+            activities.unshift({
+                action,
+                details,
+                time: new Date().toISOString()
+            });
+            activities = activities.slice(0, 10); // Keep last 10
+            localStorage.setItem('jobHuntActivities', JSON.stringify(activities));
+            renderRecentActivity();
+        }
+
+        function renderRecentActivity() {
+            const container = document.getElementById('recentActivity');
+            if (!container) return;
+
+            if (activities.length === 0) {
+                container.innerHTML = '<p class="empty-text">No recent activity</p>';
+                return;
+            }
+
+            container.innerHTML = activities.map(a => {
+                const time = new Date(a.time);
+                const timeStr = time.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                return `
+                    <div class="activity-item">
+                        <div class="activity-icon"><i class="fas fa-check-circle"></i></div>
+                        <div class="activity-content">
+                            <p class="activity-action">${a.action}</p>
+                            <p class="activity-details">${a.details}</p>
+                            <p class="activity-time">${timeStr}</p>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // --- Landing Page ---
+        function renderLanding() {
+            const hasPreferences = preferences !== null;
+            return `
+                <div class="landing-container">
+                    <div class="hero-section">
+                        <h1 class="hero-title">Find Your Dream Job</h1>
+                        <p class="hero-subtext">Track applications, discover opportunities, and land your perfect role with our smart job matching system.</p>
+                        ${hasPreferences ? `
+                            <div class="hero-actions">
+                                <button onclick="navigate('dashboard')" class="btn btn--primary btn--large">
+                                    <i class="fas fa-search"></i> Find Jobs
+                                </button>
+                                <button onclick="navigate('applications')" class="btn btn--outline btn--large">
+                                    <i class="fas fa-paper-plane"></i> My Applications
+                                </button>
+                            </div>
+                        ` : `
+                            <button onclick="navigate('settings')" class="btn btn--primary btn--large">
+                                <i class="fas fa-rocket"></i> Get Started
+                            </button>
+                        `}
+                    </div>
+                    
+                    <div class="features-grid">
+                        <div class="feature-card">
+                            <div class="feature-icon"><i class="fas fa-bullseye"></i></div>
+                            <h3>Smart Matching</h3>
+                            <p>AI-powered job matching based on your skills and preferences</p>
+                        </div>
+                        <div class="feature-card">
+                            <div class="feature-icon"><i class="fas fa-chart-line"></i></div>
+                            <h3>Track Progress</h3>
+                            <p>Monitor your applications from submission to offer</p>
+                        </div>
+                        <div class="feature-card">
+                            <div class="feature-icon"><i class="fas fa-bell"></i></div>
+                            <h3>Daily Digest</h3>
+                            <p>Get personalized job recommendations every day</p>
+                        </div>
+                    </div>
+
+                    ${hasPreferences ? renderQuickStats() : ''}
+                </div>
+            `;
+        }
+
+        function renderQuickStats() {
+            const recentApps = applications.slice(0, 3);
+            return `
+                <div class="quick-stats-section">
+                    <h2>Recent Activity</h2>
+                    ${recentApps.length > 0 ? `
+                        <div class="recent-apps-list">
+                            ${recentApps.map(app => {
+                                const job = JOBS_DATA.find(j => j.id === app.jobId);
+                                return job ? `
+                                    <div class="recent-app-item">
+                                        <div class="recent-app-info">
+                                            <h4>${job.title}</h4>
+                                            <p>${job.company}</p>
+                                        </div>
+                                        <span class="status-badge status-badge--${getStatusClass(app.status)}">${app.status}</span>
+                                    </div>
+                                ` : '';
+                            }).join('')}
+                        </div>
+                        <button onclick="navigate('applications')" class="btn btn--outline">View All Applications</button>
+                    ` : '<p class="empty-text">No applications yet. Start applying to jobs!</p>'}
+                </div>
+            `;
+        }
+
+        // --- Matching Algorithm ---
+        function calculateMatchScore(job) {
+            if (!preferences) return 0;
+            let score = 0;
+            const p = preferences;
+            const keywords = p.roleKeywords.toLowerCase().split(',').map(s => s.trim()).filter(s => s);
+            const userSkills = p.skills.toLowerCase().split(',').map(s => s.trim()).filter(s => s);
+
+            const titleMatch = keywords.some(k => job.title.toLowerCase().includes(k));
+            const descMatch = keywords.some(k => job.description.toLowerCase().includes(k));
+            if (titleMatch) score += 25;
+            else if (descMatch) score += 15;
+
+            if (p.preferredLocations.some(loc => job.location.toLowerCase().includes(loc.toLowerCase()))) score += 15;
+            if (p.preferredMode.includes(job.mode)) score += 10;
+            if (p.experienceLevel === job.experience) score += 10;
+
+            const jobSkills = job.skills.map(s => s.toLowerCase());
+            if (userSkills.some(us => jobSkills.includes(us))) score += 15;
+
+            if (job.postedDaysAgo <= 2) score += 5;
+            if (job.source === 'LinkedIn') score += 5;
+
+            return Math.min(100, score);
+        }
+
+        // --- Dashboard ---
+        function renderDashboard() {
+            if (!preferences) {
+                return `
+                    <div class="card card--highlight">
+                        <div class="card-icon"><i class="fas fa-cog"></i></div>
+                        <h3>Set Up Your Preferences</h3>
+                        <p>Configure your skills and preferences to get personalized job matches.</p>
+                        <button onclick="navigate('settings')" class="btn btn--primary">Go to Settings</button>
+                    </div>
+                `;
+            }
+
+            const keyword = document.getElementById('searchKeyword')?.value || '';
+            const location = document.getElementById('filterLocation')?.value || 'All';
+            const mode = document.getElementById('filterMode')?.value || 'All';
+            const exp = document.getElementById('filterExp')?.value || 'All';
+            const source = document.getElementById('filterSource')?.value || 'All';
+            const sortBy = document.getElementById('sortBy')?.value || 'Match';
+
+            let filteredJobs = JOBS_DATA.map(j => ({ ...j, matchScore: calculateMatchScore(j) }));
+
+            filteredJobs = filteredJobs.filter(j => {
+                const matchKeyword = !keyword || j.title.toLowerCase().includes(keyword.toLowerCase()) || j.company.toLowerCase().includes(keyword.toLowerCase());
+                const matchLocation = location === 'All' || j.location === location;
+                const matchMode = mode === 'All' || j.mode === mode;
+                const matchExp = exp === 'All' || j.experience === exp;
+                const matchSource = source === 'All' || j.source === source;
+                const matchThreshold = !showOnlyMatches || j.matchScore >= preferences.minMatchScore;
+                const notApplied = !applications.find(a => a.jobId === j.id);
+
+                return matchKeyword && matchLocation && matchMode && matchExp && matchSource && matchThreshold && notApplied;
+            });
+
+            if (sortBy === 'Latest') filteredJobs.sort((a, b) => a.postedDaysAgo - b.postedDaysAgo);
+            else if (sortBy === 'Match') filteredJobs.sort((a, b) => b.matchScore - a.matchScore);
+            else if (sortBy === 'Salary') {
+                const getSal = s => { const m = s.match(/([0-9]+)/); return m ? parseInt(m[0]) : 0; };
+                filteredJobs.sort((a, b) => getSal(b.salaryRange) - getSal(a.salaryRange));
+            }
+
+            const locations = [...new Set(JOBS_DATA.map(j => j.location))];
+            const sources = [...new Set(JOBS_DATA.map(j => j.source))];
+
+            return `
+                <div class="dashboard-header">
+                    <div class="results-count">
+                        <span class="count-number">${filteredJobs.length}</span>
+                        <span class="count-label">jobs found</span>
+                    </div>
+                    <button class="btn btn--outline btn--small" onclick="showOnlyMatches = !showOnlyMatches; renderRoute()">
+                        ${showOnlyMatches ? '<i class="fas fa-check-square"></i>' : '<i class="fas fa-square"></i>'}
+                        Show only matches above ${preferences.minMatchScore}%
+                    </button>
+                </div>
+
+                <div class="filter-bar">
+                    <div class="filter-group">
+                        <label class="filter-label"><i class="fas fa-search"></i> Search</label>
+                        <input type="text" id="searchKeyword" class="form-input" placeholder="Role or company" oninput="renderDashboardUI()" value="${keyword}">
+                    </div>
+                    <div class="filter-group">
+                        <label class="filter-label">Location</label>
+                        <select id="filterLocation" class="form-select" onchange="renderDashboardUI()">
+                            <option>All</option>
+                            ${locations.map(l => `<option ${l === location ? 'selected' : ''}>${l}</option>`).join('')}
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label class="filter-label">Mode</label>
+                        <select id="filterMode" class="form-select" onchange="renderDashboardUI()">
+                            <option>All</option>
+                            <option ${mode === 'Remote' ? 'selected' : ''}>Remote</option>
+                            <option ${mode === 'Hybrid' ? 'selected' : ''}>Hybrid</option>
+                            <option ${mode === 'Onsite' ? 'selected' : ''}>Onsite</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label class="filter-label">Experience</label>
+                        <select id="filterExp" class="form-select" onchange="renderDashboardUI()">
+                            <option>All</option>
+                            ${EXPERIENCE_LEVELS.map(l => `<option ${l === exp ? 'selected' : ''}>${l}</option>`).join('')}
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label class="filter-label">Source</label>
+                        <select id="filterSource" class="form-select" onchange="renderDashboardUI()">
+                            <option>All</option>
+                            ${sources.map(s => `<option ${s === source ? 'selected' : ''}>${s}</option>`).join('')}
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label class="filter-label">Sort</label>
+                        <select id="sortBy" class="form-select" onchange="renderDashboardUI()">
+                            <option ${sortBy === 'Match' ? 'selected' : ''}>Match</option>
+                            <option ${sortBy === 'Latest' ? 'selected' : ''}>Latest</option>
+                            <option ${sortBy === 'Salary' ? 'selected' : ''}>Salary</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="job-grid">
+                    ${filteredJobs.length ? filteredJobs.map(j => renderJobCard(j)).join('') : `
+                        <div class="empty-state">
+                            <i class="fas fa-search"></i>
+                            <h3>No jobs found</h3>
+                            <p>Try adjusting your filters or check your saved jobs.</p>
+                        </div>
+                    `}
+                </div>
+            `;
+        }
+
+        function renderDashboardUI() {
+            document.getElementById('primaryWorkspace').innerHTML = renderDashboard();
+        }
+
+        function renderJobCard(job) {
+            const isSaved = savedJobs.includes(job.id);
+            const hasApplied = applications.find(a => a.jobId === job.id);
+            const scoreClass = job.matchScore >= 80 ? 'green' : (job.matchScore >= 60 ? 'amber' : (job.matchScore >= 40 ? 'neutral' : 'grey'));
+            const isNew = job.postedDaysAgo <= 1;
+
+            return `
+                <div class="job-card ${isNew ? 'job-card--new' : ''}">
+                    ${isNew ? '<span class="new-badge">NEW</span>' : ''}
+                    <div class="job-meta">
+                        <span class="job-source"><i class="fas fa-building"></i> ${job.source}</span>
+                        <span class="score-badge score-badge--${scoreClass}">${job.matchScore}% Match</span>
+                    </div>
+                    <h2 class="job-title">${job.title}</h2>
+                    <p class="job-company"><i class="fas fa-briefcase"></i> ${job.company}</p>
+                    <div class="job-details">
+                        <span class="job-detail-item"><i class="fas fa-map-marker-alt"></i> ${job.location}</span>
+                        <span class="job-detail-item"><i class="fas fa-home"></i> ${job.mode}</span>
+                        <span class="job-detail-item"><i class="fas fa-user-clock"></i> ${job.experience}</span>
+                        <span class="job-detail-item"><i class="fas fa-money-bill-wave"></i> ${job.salaryRange}</span>
+                    </div>
+                    
+                    <div class="job-skills">
+                        ${job.skills.slice(0, 4).map(s => `<span class="skill-tag">${s}</span>`).join('')}
+                        ${job.skills.length > 4 ? `<span class="skill-tag skill-tag--more">+${job.skills.length - 4}</span>` : ''}
+                    </div>
+
+                    <p class="job-posted"><i class="fas fa-clock"></i> Posted ${job.postedDaysAgo} days ago</p>
+
+                    <div class="job-actions">
+                        <button class="btn btn--outline btn--icon" onclick="viewJob('${job.id}')" title="View Details">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                        <button class="btn btn--outline btn--icon ${isSaved ? 'btn--active' : ''}" onclick="toggleSave('${job.id}')" title="${isSaved ? 'Unsave' : 'Save'}">
+                            <i class="fas ${isSaved ? 'fa-bookmark' : 'fa-bookmark-o'}"></i>
+                        </button>
+                        ${hasApplied ? `
+                            <button class="btn btn--success" disabled><i class="fas fa-check"></i> Applied</button>
+                        ` : `
+                            <button class="btn btn--primary" onclick="openApplyModal('${job.id}')">
+                                <i class="fas fa-paper-plane"></i> Apply Now
+                            </button>
+                        `}
+                    </div>
+                </div>
+            `;
+        }
+
+        // --- Job View Modal ---
+        function viewJob(id) {
+            const job = JOBS_DATA.find(j => j.id === id);
+            const hasApplied = applications.find(a => a.jobId === id);
+            document.getElementById('modalBody').innerHTML = `
+                <div class="modal-header">
+                    <span class="modal-source">${job.source}</span>
+                    <h1 class="modal-title">${job.title}</h1>
+                    <p class="modal-company"><i class="fas fa-building"></i> ${job.company}</p>
+                </div>
+                <div class="modal-details">
+                    <div class="detail-row">
+                        <span><i class="fas fa-map-marker-alt"></i> ${job.location}</span>
+                        <span><i class="fas fa-home"></i> ${job.mode}</span>
+                        <span><i class="fas fa-user-clock"></i> ${job.experience}</span>
+                        <span><i class="fas fa-money-bill-wave"></i> ${job.salaryRange}</span>
+                    </div>
+                </div>
+                <div class="modal-section">
+                    <h3>Required Skills</h3>
+                    <div class="skills-list">
+                        ${job.skills.map(s => `<span class="skill-tag skill-tag--large">${s}</span>`).join('')}
+                    </div>
+                </div>
+                <div class="modal-section">
+                    <h3>Job Description</h3>
+                    <p class="modal-description">${job.description}</p>
+                </div>
+                <div class="modal-actions">
+                    ${hasApplied ? `
+                        <button class="btn btn--success btn--large" disabled>
+                            <i class="fas fa-check"></i> Already Applied
+                        </button>
+                    ` : `
+                        <button class="btn btn--primary btn--large" onclick="closeModal(); openApplyModal('${job.id}')">
+                            <i class="fas fa-paper-plane"></i> Apply Now
+                        </button>
+                    `}
+                    <a href="${job.applyUrl}" target="_blank" class="btn btn--outline btn--large">
+                        <i class="fas fa-external-link-alt"></i> View Original
+                    </a>
+                </div>
+            `;
+            document.getElementById('jobModal').style.display = 'flex';
+        }
+
+        function closeModal() {
+            document.getElementById('jobModal').style.display = 'none';
+        }
+
+        // --- Application System ---
+        function openApplyModal(jobId) {
+            const job = JOBS_DATA.find(j => j.id === jobId);
+            document.getElementById('applyModalBody').innerHTML = `
+                <div class="apply-modal-header">
+                    <h2><i class="fas fa-paper-plane"></i> Apply for ${job.title}</h2>
+                    <p>at ${job.company}</p>
+                </div>
+                <form onsubmit="event.preventDefault(); submitApplication('${jobId}');">
+                    <div class="form-group">
+                        <label class="form-label">Applied Date</label>
+                        <input type="date" id="applyDate" class="form-input" value="${new Date().toISOString().split('T')[0]}" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Application Method</label>
+                        <select id="applyMethod" class="form-select">
+                            <option>Company Website</option>
+                            <option>LinkedIn</option>
+                            <option>Indeed</option>
+                            <option>Naukri</option>
+                            <option>Email</option>
+                            <option>Referral</option>
+                            <option>Other</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Notes (optional)</label>
+                        <textarea id="applyNotes" class="form-input" rows="3" placeholder="Any notes about this application..."></textarea>
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" class="btn btn--outline" onclick="closeApplyModal()">Cancel</button>
+                        <button type="submit" class="btn btn--primary">
+                            <i class="fas fa-check"></i> Mark as Applied
+                        </button>
+                    </div>
+                </form>
+            `;
+            document.getElementById('applyModal').style.display = 'flex';
+        }
+
+        function closeApplyModal() {
+            document.getElementById('applyModal').style.display = 'none';
+        }
+
+        function submitApplication(jobId) {
+            const job = JOBS_DATA.find(j => j.id === jobId);
+            const application = {
+                id: 'app-' + Date.now(),
+                jobId: jobId,
+                jobTitle: job.title,
+                company: job.company,
+                appliedDate: document.getElementById('applyDate').value,
+                method: document.getElementById('applyMethod').value,
+                notes: document.getElementById('applyNotes').value,
+                status: 'Applied',
+                history: [{ status: 'Applied', date: document.getElementById('applyDate').value, note: 'Initial application' }]
+            };
+
+            applications.push(application);
+            localStorage.setItem('jobHuntApplications', JSON.stringify(applications));
+            
+            addActivity('Applied', `${job.title} at ${job.company}`);
+            showToast('Application tracked successfully!');
+            closeApplyModal();
+            renderRoute();
+        }
+
+        function updateApplicationStatus(appId, newStatus, note = '') {
+            const app = applications.find(a => a.id === appId);
+            if (app) {
+                app.status = newStatus;
+                app.history.push({
+                    status: newStatus,
+                    date: new Date().toISOString().split('T')[0],
+                    note: note || 'Status updated'
+                });
+                localStorage.setItem('jobHuntApplications', JSON.stringify(applications));
+                addActivity('Status Update', `${app.jobTitle} - ${newStatus}`);
+                showToast(`Status updated to ${newStatus}`);
+                renderRoute();
+            }
+        }
+
+        function withdrawApplication(appId) {
+            if (confirm('Are you sure you want to withdraw this application?')) {
+                updateApplicationStatus(appId, 'Withdrawn', 'Application withdrawn by user');
+            }
+        }
+
+        // --- Applications Page ---
+        function renderApplications() {
+            if (applications.length === 0) {
+                return `
+                    <div class="empty-state empty-state--large">
+                        <i class="fas fa-paper-plane"></i>
+                        <h3>No applications yet</h3>
+                        <p>Start applying to jobs and track your progress here.</p>
+                        <button onclick="navigate('dashboard')" class="btn btn--primary">Find Jobs</button>
+                    </div>
+                `;
+            }
+
+            const activeApps = applications.filter(a => a.status !== 'Withdrawn');
+            const withdrawnApps = applications.filter(a => a.status === 'Withdrawn');
+
+            return `
+                <div class="applications-container">
+                    <div class="apps-tabs">
+                        <button class="tab-btn active" onclick="showAppsTab('active')">Active (${activeApps.length})</button>
+                        <button class="tab-btn" onclick="showAppsTab('withdrawn')">Withdrawn (${withdrawnApps.length})</button>
+                    </div>
+                    
+                    <div id="activeAppsTab" class="apps-tab-content">
+                        ${activeApps.map(app => renderApplicationCard(app)).join('')}
+                    </div>
+                    
+                    <div id="withdrawnAppsTab" class="apps-tab-content" style="display:none">
+                        ${withdrawnApps.map(app => renderApplicationCard(app)).join('')}
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderApplicationCard(app) {
+            const job = JOBS_DATA.find(j => j.id === app.jobId);
+            const daysSince = Math.floor((new Date() - new Date(app.appliedDate)) / (1000 * 60 * 60 * 24));
+            
+            return `
+                <div class="application-card">
+                    <div class="app-header">
+                        <div class="app-info">
+                            <h3>${app.jobTitle}</h3>
+                            <p><i class="fas fa-building"></i> ${app.company}</p>
+                        </div>
+                        <span class="status-badge status-badge--${getStatusClass(app.status)}">${app.status}</span>
+                    </div>
+                    <div class="app-details">
+                        <span><i class="fas fa-calendar"></i> Applied ${daysSince} days ago</span>
+                        <span><i class="fas fa-globe"></i> via ${app.method}</span>
+                    </div>
+                    ${app.notes ? `<p class="app-notes"><i class="fas fa-sticky-note"></i> ${app.notes}</p>` : ''}
+                    <div class="app-actions">
+                        <select class="form-select form-select--small" onchange="updateApplicationStatus('${app.id}', this.value)">
+                            <option value="Applied" ${app.status === 'Applied' ? 'selected' : ''}>Applied</option>
+                            <option value="Screening" ${app.status === 'Screening' ? 'selected' : ''}>Screening</option>
+                            <option value="Interview" ${app.status === 'Interview' ? 'selected' : ''}>Interview</option>
+                            <option value="Offer" ${app.status === 'Offer' ? 'selected' : ''}>Offer</option>
+                            <option value="Rejected" ${app.status === 'Rejected' ? 'selected' : ''}>Rejected</option>
+                        </select>
+                        ${app.status !== 'Withdrawn' ? `
+                            <button class="btn btn--outline btn--small btn--danger" onclick="withdrawApplication('${app.id}')">
+                                <i class="fas fa-times"></i> Withdraw
+                            </button>
+                        ` : ''}
+                    </div>
+                </div>
+            `;
+        }
+
+        function getStatusClass(status) {
+            const classes = {
+                'Applied': 'blue',
+                'Screening': 'amber',
+                'Interview': 'purple',
+                'Offer': 'green',
+                'Rejected': 'red',
+                'Withdrawn': 'grey'
+            };
+            return classes[status] || 'neutral';
+        }
+
+        function showAppsTab(tab) {
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            event.target.classList.add('active');
+            document.getElementById('activeAppsTab').style.display = tab === 'active' ? 'block' : 'none';
+            document.getElementById('withdrawnAppsTab').style.display = tab === 'withdrawn' ? 'block' : 'none';
+        }
+
+        // --- Saved Jobs ---
+        function renderSaved() {
+            if (savedJobs.length === 0) {
+                return `
+                    <div class="empty-state empty-state--large">
+                        <i class="fas fa-bookmark"></i>
+                        <h3>No saved jobs</h3>
+                        <p>Save jobs you're interested in to view them later.</p>
+                        <button onclick="navigate('dashboard')" class="btn btn--primary">Find Jobs</button>
+                    </div>
+                `;
+            }
+
+            const jobs = JOBS_DATA.filter(j => savedJobs.includes(j.id)).map(j => ({ ...j, matchScore: calculateMatchScore(j) }));
+            return `
+                <div class="saved-header">
+                    <span class="saved-count">${jobs.length} saved job${jobs.length !== 1 ? 's' : ''}</span>
+                    <button class="btn btn--outline btn--small" onclick="clearSaved()"><i class="fas fa-trash"></i> Clear All</button>
+                </div>
+                <div class="job-grid">${jobs.map(j => renderJobCard(j)).join('')}</div>
+            `;
+        }
+
+        function toggleSave(id) {
+            const job = JOBS_DATA.find(j => j.id === id);
+            if (savedJobs.includes(id)) {
+                savedJobs = savedJobs.filter(i => i !== id);
+                showToast('Job removed from saved');
+            } else {
+                savedJobs.push(id);
+                addActivity('Saved Job', `${job.title} at ${job.company}`);
+                showToast('Job saved');
+            }
+            localStorage.setItem('jobHuntSaved', JSON.stringify(savedJobs));
+            renderRoute();
+        }
+
+        function clearSaved() {
+            if (confirm('Clear all saved jobs?')) {
+                savedJobs = [];
+                localStorage.setItem('jobHuntSaved', JSON.stringify(savedJobs));
+                showToast('All saved jobs cleared');
+                renderRoute();
+            }
+        }
+
+        // --- Digest ---
+        function renderDigest() {
+            if (!preferences) {
+                return `
+                    <div class="card card--highlight">
+                        <div class="card-icon"><i class="fas fa-cog"></i></div>
+                        <h3>Set Up Your Preferences</h3>
+                        <p>Configure your skills to get personalized job recommendations.</p>
+                        <button onclick="navigate('settings')" class="btn btn--primary">Go to Settings</button>
+                    </div>
+                `;
+            }
+
+            const today = new Date().toISOString().split('T')[0];
+            let digest = JSON.parse(localStorage.getItem(`jobHuntDigest_${today}`));
+
+            if (!digest) {
+                return `
+                    <div class="digest-generator">
+                        <div class="digest-illustration">
+                            <i class="fas fa-newspaper"></i>
+                        </div>
+                        <h2>Your Daily Digest</h2>
+                        <p>Get personalized job recommendations based on your preferences.</p>
+                        <button class="btn btn--primary btn--large" onclick="generateDigest()">
+                            <i class="fas fa-magic"></i> Generate Today's Digest
+                        </button>
+                    </div>
+                `;
+            }
+
+            return `
+                <div class="digest-container">
+                    <div class="digest-header-actions">
+                        <button class="btn btn--outline" onclick="generateDigest()">
+                            <i class="fas fa-sync"></i> Refresh
+                        </button>
+                        <button class="btn btn--outline" onclick="copyDigest()">
+                            <i class="fas fa-copy"></i> Copy
+                        </button>
+                        <button class="btn btn--outline" onclick="emailDigest()">
+                            <i class="fas fa-envelope"></i> Email
+                        </button>
+                    </div>
+                    <div class="digest-card">
+                        <header class="digest-header">
+                            <h1><i class="fas fa-star"></i> Top Matches for You</h1>
+                            <p class="digest-date">${new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</p>
+                        </header>
+                        ${digest.map((j, i) => `
+                            <div class="digest-job-item">
+                                <div class="digest-job-rank">${i + 1}</div>
+                                <div class="digest-job-info">
+                                    <h3>${j.title}</h3>
+                                    <p>${j.company} • ${j.location}</p>
+                                    <span class="match-score">${j.matchScore}% Match</span>
+                                </div>
+                                <button class="btn btn--primary btn--small" onclick="viewJob('${j.id}')">View</button>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+        }
+
+        function generateDigest() {
+            const jobs = JOBS_DATA.map(j => ({ ...j, matchScore: calculateMatchScore(j) }))
+                .filter(j => j.matchScore >= (preferences.minMatchScore || 40))
+                .sort((a, b) => b.matchScore - a.matchScore)
+                .slice(0, 10);
+
+            if (jobs.length === 0) {
+                showToast('No matching jobs found. Try adjusting your preferences.');
+                return;
+            }
+
+            const today = new Date().toISOString().split('T')[0];
+            localStorage.setItem(`jobHuntDigest_${today}`, JSON.stringify(jobs));
+            addActivity('Generated Digest', `${jobs.length} job recommendations`);
+            showToast('Daily digest generated!');
+            renderRoute();
+        }
+
+        function copyDigest() {
+            const today = new Date().toISOString().split('T')[0];
+            const digest = JSON.parse(localStorage.getItem(`jobHuntDigest_${today}`));
+            const text = `My Job Recommendations - ${new Date().toLocaleDateString()}\n\n` +
+                digest.map((j, i) => `${i + 1}. ${j.title} at ${j.company} (${j.matchScore}% Match)\n   ${j.applyUrl}`).join('\n\n');
+            navigator.clipboard.writeText(text);
+            showToast('Copied to clipboard');
+        }
+
+        function emailDigest() {
+            const today = new Date().toISOString().split('T')[0];
+            const digest = JSON.parse(localStorage.getItem(`jobHuntDigest_${today}`));
+            const body = digest.map((j, i) => `${i + 1}. ${j.title} at ${j.company} (${j.matchScore}% Match)\nApply: ${j.applyUrl}`).join('\n\n');
+            window.location.href = `mailto:?subject=My Job Recommendations - ${new Date().toLocaleDateString()}&body=${encodeURIComponent(body)}`;
+        }
+
+        // --- Settings ---
+        function renderSettings() {
+            const p = preferences || { roleKeywords: '', preferredLocations: [], preferredMode: [], experienceLevel: 'Fresher', skills: '', minMatchScore: 50 };
+            const locations = ['Bangalore', 'Mumbai', 'Pune', 'Hyderabad', 'Remote', 'Chennai', 'Delhi', 'Gurgaon', 'Noida'];
+            const modes = ['Remote', 'Hybrid', 'Onsite'];
+
+            return `
+                <div class="settings-container">
+                    <div class="card">
+                        <h2><i class="fas fa-sliders-h"></i> Job Preferences</h2>
+                        <form onsubmit="event.preventDefault(); savePreferences();">
+                            <div class="form-group">
+                                <label class="form-label">Job Title Keywords</label>
+                                <input type="text" id="roleKeywords" class="form-input" value="${p.roleKeywords}" placeholder="e.g. Frontend Developer, React, Software Engineer">
+                                <p class="form-hint">Separate multiple keywords with commas</p>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Preferred Locations</label>
+                                <input type="text" id="prefLocs" class="form-input" value="${p.preferredLocations.join(', ')}" placeholder="e.g. Bangalore, Remote">
+                                <p class="form-hint">Separate multiple locations with commas</p>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Work Mode</label>
+                                <div class="checkbox-group">
+                                    ${modes.map(m => `
+                                        <label class="checkbox-label">
+                                            <input type="checkbox" name="mode" value="${m}" ${p.preferredMode.includes(m) ? 'checked' : ''}>
+                                            <span>${m}</span>
+                                        </label>
+                                    `).join('')}
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Your Skills</label>
+                                <input type="text" id="prefSkills" class="form-input" value="${p.skills || ''}" placeholder="e.g. JavaScript, Python, React, Node.js">
+                                <p class="form-hint">These help us match you with relevant jobs</p>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Experience Level</label>
+                                <select id="expLevel" class="form-select">
+                                    ${EXPERIENCE_LEVELS.map(l => `<option ${p.experienceLevel === l ? 'selected' : ''}>${l}</option>`).join('')}
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Minimum Match Score: <span id="scoreVal">${p.minMatchScore}</span>%</label>
+                                <input type="range" class="form-range" min="0" max="100" value="${p.minMatchScore}" oninput="document.getElementById('scoreVal').innerText=this.value" id="minThreshold">
+                                <p class="form-hint">Jobs below this score won't appear in your digest</p>
+                            </div>
+                            <div class="form-actions">
+                                <button type="submit" class="btn btn--primary btn--large">
+                                    <i class="fas fa-save"></i> Save Preferences
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                    
+                    <div class="card card--danger">
+                        <h3><i class="fas fa-exclamation-triangle"></i> Danger Zone</h3>
+                        <p>Clear all your data from this device.</p>
+                        <button class="btn btn--danger" onclick="clearAllData()">
+                            <i class="fas fa-trash"></i> Clear All Data
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function savePreferences() {
+            const m = Array.from(document.querySelectorAll('input[name="mode"]:checked')).map(c => c.value);
+            const newP = {
+                roleKeywords: document.getElementById('roleKeywords').value,
+                preferredLocations: document.getElementById('prefLocs').value.split(',').map(s => s.trim()).filter(s => s),
+                preferredMode: m,
+                experienceLevel: document.getElementById('expLevel').value,
+                skills: document.getElementById('prefSkills').value,
+                minMatchScore: parseInt(document.getElementById('minThreshold').value)
+            };
+            localStorage.setItem('jobHuntPreferences', JSON.stringify(newP));
+            preferences = newP;
+            addActivity('Updated Preferences', 'Job search preferences saved');
+            showToast('Preferences saved successfully!');
+            navigate('dashboard');
+        }
+
+        function clearAllData() {
+            if (confirm('WARNING: This will delete ALL your data including applications, saved jobs, and preferences. This cannot be undone. Continue?')) {
+                localStorage.removeItem('jobHuntPreferences');
+                localStorage.removeItem('jobHuntSaved');
+                localStorage.removeItem('jobHuntApplications');
+                localStorage.removeItem('jobHuntActivities');
+                preferences = null;
+                savedJobs = [];
+                applications = [];
+                activities = [];
+                showToast('All data cleared');
+                navigate('landing');
+            }
+        }
+
+        // --- Toast Notifications ---
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = `toast toast--${type}`;
+            toast.innerHTML = `<i class="fas fa-info-circle"></i> ${message}`;
+            container.appendChild(toast);
+            setTimeout(() => {
+                toast.classList.add('toast--fadeout');
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        // --- Mobile Menu ---
+        function toggleMobileMenu() {
+            const mobileNav = document.getElementById('mobileNav');
+            mobileNav.classList.toggle('active');
+        }
+
+        // --- Initialize ---
+        window.addEventListener('hashchange', renderRoute);
+        window.addEventListener('load', () => {
+            renderRoute();
+            // Update last viewed
+            localStorage.setItem('jobHuntLastViewed', JSON.stringify(Date.now()));
+        });
+    </script>
+</body>
+
+</html>
