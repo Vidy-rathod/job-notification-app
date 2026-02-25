@@ -1,3 +1,58 @@
+# QUICK START GUIDE
+
+## STEP 1: Connect MongoDB (Choose One)
+
+### Option A: MongoDB Atlas (Cloud - Easiest)
+1. Go to https://www.mongodb.com/atlas
+2. Sign up free → Create cluster
+3. Click "Connect" → "Drivers" → "Node.js"
+4. Copy connection string
+5. Replace in `.env.local` file:
+```
+MONGODB_URI=mongodb+srv://yourusername:yourpassword@cluster0.xxxxx.mongodb.net/jobhunt
+```
+
+### Option B: Local MongoDB
+1. Install MongoDB Community from https://www.mongodb.com/try/download/community
+2. Start MongoDB service
+3. Use: `MONGODB_URI=mongodb://localhost:27017/jobhunt`
+
+## STEP 2: Run Locally
+
+```bash
+# Install dependencies
+npm install
+
+# Start server
+npm start
+
+# Open browser
+http://localhost:8080
+```
+
+## STEP 3: Deploy to Vercel
+
+### Install Vercel CLI
+```bash
+npm i -g vercel
+```
+
+### Login and Deploy
+```bash
+vercel login
+vercel
+```
+
+### Add Environment Variables on Vercel
+```bash
+vercel env add MONGODB_URI
+vercel env add JWT_SECRET
+```
+
+Then: `vercel --prod`
+
+---
+
 # JobHunt - Real-Time Job Tracking Application
 
 A full-stack real-time job tracking application with MongoDB database, WebSocket connections, user authentication, and external API integrations.
